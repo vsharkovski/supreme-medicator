@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Supreme Medicator</title>
+</head>
+<body>
+<label for="user-input">Enter your symptoms</label>
+<input type="text" name="user-input" id="user-input" style="min-width: 40rem"/>
+<button id="user-input-submit">Submit</button>
+<p>Extracted symptoms:</p>
+<p id="extracted-symptoms">none</p>
+<script>
+  // Test script to demonstrate how to use API
+  const userInput = document.querySelector('#user-input');
+  const userInputSubmitButton = document.querySelector('#user-input-submit');
+  const extractedSymptomsParagraph = document.querySelector('#extracted-symptoms');
+  let symptoms = [];
+
+  function submitUserInput() {
+    const params = new URLSearchParams({input: userInput.value});
+    fetch('/api/extract_symptoms/from_input?' + params, {
+      method: 'GET',
+      headers: {'Content-Type': 'application/json'}
+    }).then((response) => {
+      if (!response.ok) {
+        throw new Error(`Bad response: ${response.status} ${response.statusText}`);
+      }
+      return response.json();
+    }).then((responseBody) => {
+      const extractedSymptoms = responseBody['symptoms'];
+      extractedSymptomsParagraph.replaceChildren(document.createTextNode(extractedSymptoms));
+      symptoms = extractedSymptoms;
+    }).catch((error) => {
+      console.error('Fetch error:', error);
+      extractedSymptomsParagraph.replaceChildren(document.createTextNode('Fetch error: ' + error));
+    })
+  }
+
+  userInputSubmitButton.addEventListener('click', () => submitUserInput());
+</script>
+</body>
+</html>

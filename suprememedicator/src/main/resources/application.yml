@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: suprememedicator
+  #  autoconfigure:
+  #    exclude:
+  #      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
+  #      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+  datasource:
+    url: jdbc:postgresql://localhost:5432/suprememedicator
+    username: postgres
+    password: postgres
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+logging:
+  file:
+    path: out/logs
+  level:
+    ROOT: INFO
+open-ai:
+  model: gpt-3.5-turbo
+suprememedicator:
+  database:
+    import:
+      should-import: false
+      dataset:
+        path: NO-PATH
