@@ -14,7 +14,7 @@
 	<name>suprememedicator</name>
 	<description>Supreme Medicator Project</description>
 	<properties>
-		<java.version>17</java.version>
+		<java.version>18</java.version>
 	</properties>
 	<dependencies>
 		<dependency>
