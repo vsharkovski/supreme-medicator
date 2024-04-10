@@ -4,40 +4,40 @@
   <meta charset="UTF-8">
   <title>Supreme Medicator</title>
 </head>
+<script src="logic.js" defer></script>
+<link rel="stylesheet" href="styles.css">
+
 <body>
-<label for="user-input">Enter your symptoms</label>
-<input type="text" name="user-input" id="user-input" style="min-width: 40rem"/>
-<button id="user-input-submit">Submit</button>
-<p>Extracted symptoms:</p>
-<p id="extracted-symptoms">none</p>
-<script>
-  // Test script to demonstrate how to use API
-  const userInput = document.querySelector('#user-input');
-  const userInputSubmitButton = document.querySelector('#user-input-submit');
-  const extractedSymptomsParagraph = document.querySelector('#extracted-symptoms');
-  let symptoms = [];
 
-  function submitUserInput() {
-    const params = new URLSearchParams({input: userInput.value});
-    fetch('/api/extract_symptoms/from_input?' + params, {
-      method: 'GET',
-      headers: {'Content-Type': 'application/json'}
-    }).then((response) => {
-      if (!response.ok) {
-        throw new Error(`Bad response: ${response.status} ${response.statusText}`);
-      }
-      return response.json();
-    }).then((responseBody) => {
-      const extractedSymptoms = responseBody['symptoms'];
-      extractedSymptomsParagraph.replaceChildren(document.createTextNode(extractedSymptoms));
-      symptoms = extractedSymptoms;
-    }).catch((error) => {
-      console.error('Fetch error:', error);
-      extractedSymptomsParagraph.replaceChildren(document.createTextNode('Fetch error: ' + error));
-    })
-  }
+  <div id="error-page" class="page">
+    <h1>Oops! Something went wrong.</h1>
+    <p>Sorry, we couldn't find the page you were looking for.</p>
+    <p id="error-message"></p>
+    <a id="error-button">Go back to the home page</a>
+  </div>
 
-  userInputSubmitButton.addEventListener('click', () => submitUserInput());
-</script>
+  <div id="landing-page" class="page">
+    <h1> How are you feeling today?</h1>
+    <input class="usr-inp" type="text" name="user-input" id="user-input" placeholder="Enter your symptoms here. Be as detailed as possible"/>
+    <button id="user-input-submit">Submit</button>
+    <h2 id="extracted-symptoms"> Loading... </h2>
+    <div class="suggestions">
+      <p>Examples:</p>
+      <ul id="suggested-symptoms-list">
+      </ul>
+    </div>
+  </div>
+
+
+  <div id="results-page" class="page">
+    <h1 id="user-symptoms">Symptoms: Loading</h1>
+    <p id="symptoms-explanation">Loading...</p>
+    <div id="medicines-list">
+
+    </div>
+    <button id="back-button">Back</button>
+  </div>
+
 </body>
+
 </html>
