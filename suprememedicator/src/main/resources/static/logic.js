@@ -60,9 +60,9 @@ function buildLandingPage(){
     landingPage.classList.remove('hidden');
     const userInput = document.querySelector('#user-input');
     const userInputSubmitButton = document.querySelector('#user-input-submit');
-    const extractedSymptomsParagraph = document.querySelector('#extracted-symptoms');
     const suggestions = document.querySelector('#suggested-symptoms-list');
 
+    suggestions.innerHTML = '';
     for (let i = 0; i < 3; i++) {
         const suggestion = document.createElement('li');
         const idx = Math.floor(Math.random() * predefSymptoms.length);
@@ -78,7 +78,6 @@ function buildLandingPage(){
 
     userInputSubmitButton.addEventListener('click', () => {
         apiCall('extract_symptoms/from_input', {input: userInput.value}).then((response) => {
-            extractedSymptomsParagraph.textContent = response['symptoms'];
             buildResultsPage(response['symptoms']);
         }).catch((error) => {
             console.log(error);
@@ -106,21 +105,62 @@ function buildResultsPage(symptoms){
     const symptomsExplanation = document.querySelector('#symptoms-explanation');
 
     userSymptoms.textContent = "You are experiencing: " + symptoms.join(', ');
+    
+    const submitButton = document.querySelector('#filter-submit');
 
     apiCall('explain_symptoms/from_symptoms', {symptoms: symptoms.join(',')}).then((response) => {
         console.log(response);
-        symptomsExplanation.textContent = response['explanation'];
+        textTyping(symptomsExplanation, response['explanation'], 15)
     }).catch((error) => {
         console.log(error)
     })
-
 
     apiCall('medicines/for_symptoms', {symptoms: symptoms.join(',')}).then((response) => {
         const medicinesList = document.querySelector('#medicines-list');
         response['medicines'].forEach((medicine) => { 
             medicinesList.appendChild(buildMedicine(medicine));
         })
-    }).catch((error) => {
+
+        submitButton.addEventListener('click', () => {
+            const name_filter = document.querySelector('#name-filter').value
+            const low_price = document.querySelector('#price-min-filter').value
+            const high_price = document.querySelector('#price-max-filter').value
+            const medicinesWithResult = new Set([]);
+
+            document.querySelectorAll('.product-card').forEach((product) => {
+                    let productName, productType, productDosage, productPrice;
+                    [productName, productType, productDosage, productPrice] = product.children;  
+                    productName = productName.textContent.toLowerCase();
+                    productPrice = productPrice.textContent.split(' ')[0];
+                    if ((name_filter === '' || productName.includes(name_filter.toLowerCase())) && 
+                        (low_price === '' || parseFloat(productPrice) >= parseFloat(low_price)) &&
+                        (high_price === '' || parseFloat(productPrice) <= parseFloat(high_price))) {
+                        console.log("moryarty", parseFloat(productPrice), parseFloat(low_price), parseFloat(high_price));
+                        product.style.display = 'inline-block';
+                        product.parentElement.parentElement.style.display = 'block';
+                        medicinesWithResult.add(product.parentElement.parentElement);
+                    } else {
+                        product.style.display = 'none';
+                    }
+                })
+                document.querySelectorAll('.medicine').forEach((medicine) => {
+                    const medicineName = medicine.children[0].textContent.toLowerCase();
+                    if (!medicinesWithResult.has(medicine)) {
+                        medicine.style.display = 'none';
+                    }
+                    if (name_filter !== '' && medicineName.includes(name_filter.toLowerCase())) {
+                        medicine.style.display = 'block';
+                        medicine.querySelectorAll('.product-card').forEach((product) => {
+                            product.style.display = 'inline-block';
+                        })
+                    }
+                })
+            })
+
+
+
+
+        }).catch((error) => {
         console.log(error)
     })
 
@@ -143,7 +183,6 @@ function buildMedicine(info) {
     productsList.classList.add('products-list');
 
     info['products'].forEach((product) => {
-        console.log('product:', product)
         productsList.appendChild(buildProductCard(product))
     });
 
@@ -164,11 +203,28 @@ function buildProductCard(info){
     productCard.innerHTML = `
         <h3>${info.brandName}</h3>
         <p>${otcInfo}</p>
-        <p>${info.dosageType}: ${info.price}</p>
+        <p>${info.dosageType}</p>
+        <p>${info.price} USD</p>
     `;
     return productCard;
 }
 
 
-buildLandingPage();
 
+function textTyping(element, text, delay) {
+    element.textContent = '';
+    return new Promise((resolve) => {
+        let i = 0;
+        const interval = setInterval(() => {
+            element.textContent += text[i];
+            i++;
+            if (i >= text.length) {
+                clearInterval(interval);
+                resolve();
+            }
+        }, delay);
+    });
+}
+
+// buildResultsPage(['headache', 'fever']);
+buildLandingPage();
