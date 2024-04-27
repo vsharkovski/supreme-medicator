@@ -9,7 +9,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
@@ -67,6 +72,22 @@ public class DatabaseImportService {
     }
 
     void importDataset(Path datasetPath) {
+        SAXParserFactory factory = SAXParserFactory.newInstance();
+        DatasetMedicineParser datasetMedicineParser = new DatasetMedicineParser(medicineRepository, productRepository);
 
+        SAXParser saxParser;
+        try {
+            saxParser = factory.newSAXParser();
+        } catch (ParserConfigurationException | SAXException e) {
+            throw new RuntimeException(e);
+        }
+
+        try {
+            saxParser.parse(datasetPath.toString(), datasetMedicineParser);
+        } catch (SAXException | IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        logger.info("Dataset import success.");
     }
 }

@@ -19,7 +19,6 @@ public class Product {
     private Medicine medicine;
 
     @NotNull
-    @Column(unique = true) // Should have the database set up an index to speed up searches
     private String brandName;
 
     @NotNull
@@ -28,7 +27,6 @@ public class Product {
     @NotNull
     private boolean isGeneric;
 
-    @NotNull
     @Enumerated(EnumType.STRING)
     private EDosageType dosageType;
 
@@ -74,5 +72,33 @@ public class Product {
 
     public BigDecimal getPrice() {
         return price;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setBrandName(String brandName) {
+        this.brandName = brandName;
+    }
+
+    public void setDosageType(EDosageType dosageType) {
+        this.dosageType = dosageType;
+    }
+
+    public void setGeneric(boolean generic) {
+        isGeneric = generic;
+    }
+
+    public  void setPrice(BigDecimal price) {
+        this.price = price;
+    }
+
+    public void setOverTheCounter(boolean overTheCounter) {
+        isOverTheCounter = overTheCounter;
+    }
+
+    public void setMedicine(Medicine medicine) {
+        this.medicine = medicine;
     }
 }
