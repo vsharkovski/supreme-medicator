@@ -17,10 +17,12 @@
   </div>
 
   <div id="landing-page" class="page">
+    <img src="resources/logo-sm.png" class="logo" alt="">
     <h1> How are you feeling today?</h1>
-    <input class="usr-inp" type="text" name="user-input" id="user-input" placeholder="Enter your symptoms here. Be as detailed as possible"/>
-    <button id="user-input-submit">Submit</button>
-    <h2 id="extracted-symptoms"> Loading... </h2>
+    <div class="search-bar">
+      <input class="usr-inp" type="text" name="user-input" id="user-input" placeholder="Enter your symptoms here. Be as detailed as possible"/>
+      <button id="user-input-submit"><img class="icon" src="resources/search.png" alt=""></button>
+    </div>
     <div class="suggestions">
       <p>Examples:</p>
       <ul id="suggested-symptoms-list">
@@ -30,13 +32,35 @@
 
 
   <div id="results-page" class="page">
+    <img src="resources/logo-sm.png" class="logo" alt="">
     <h1 id="user-symptoms">Symptoms: Loading</h1>
     <p id="symptoms-explanation">Loading...</p>
-    <div id="medicines-list">
+    <div class="results-container">
+      <div class="left-side">
+        <h2>Recommended Medicines</h2>
+        <p>Based on your symptoms, we recommend the following medicines:</p>
+        <div id="medicines-list">
+        </div>
+      </div>
 
+      <div class="right-side">
+        <div id="filter-form">
+          <h5>Filter results</h5>
+          <label for="name-filter">Name</label>
+          <input class="form-input" type="text" name="name-filter" id="name-filter" placeholder="Filter by name..." />
+          <label>Price</label>
+          <div class="input-row">
+            <input class="form-input" type="number" name="price-min-filter" id="price-min-filter" placeholder="0" min="0" max="10000" />
+            <span>to</span>
+            <input class="form-input" type="number" name="price-max-filter" id="price-max-filter" placeholder="10000" min="0" max="10000" />
+          </div>
+          <button id='filter-submit'><img class="icon"  src="resources/filter.png" alt=""></button>
+        </div>
+      </div>
     </div>
     <button id="back-button">Back</button>
-  </div>
+    </div>
+
 
 </body>
 
