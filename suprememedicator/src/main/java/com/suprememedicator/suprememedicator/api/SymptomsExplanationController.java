@@ -20,7 +20,6 @@ import java.util.List;
 public class SymptomsExplanationController {
     private final Logger logger = LoggerFactory.getLogger(SymptomsExplanationController.class);
 
-    // TODO: 'heartache' returns NOT_OK, why?
     private static final String EXPLAIN_SYMPTOMS_PROMPT = """
             You will now be given a message. Depending on the content of the message, you must do one of two things.
             1. If the message is from someone feeling unwell, and is just a single symptom, \
@@ -64,7 +63,7 @@ public class SymptomsExplanationController {
 
     private String getSymptomsExplanationCompletion(List<String> symptoms) {
         OpenAICompletionRequest request = new OpenAICompletionRequest(
-                1.0f,
+                0.0f,
                 openAIClient.getModel(),
                 List.of(
                         new OpenAICompletionRequest.Message("system", EXPLAIN_SYMPTOMS_PROMPT),

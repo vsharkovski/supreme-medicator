@@ -27,11 +27,11 @@ public class MedicinesController {
 
     private static final String GET_MEDICINES_PROMPT = """
             You will now be given a message. Depending on the content of the message, you must do one of two things.
-            1. If the message is from someone feeling unwell, and is just a single symptom, \
-            or a comma-separated list of symptoms:
-            Your answer should start with "OK;" and be followed by a comma-separated list of medicines which \
+            1. If the message is a symptom or a list of symptoms, \
+            your answer should start with "OK;" and be followed by a comma-separated list of medicines which \
             could help with those symptoms. \
-            For example, "OK; medicine_1, medicine_2, medicine_3".
+            For example, "OK; medicine_1, medicine_2, medicine_3". \
+            You may include over-the-counter and prescription products.
             2. If the message is anything else, your answer should be just "NOT_OK".
             Do not deviate from these instructions.
             """;
@@ -71,38 +71,21 @@ public class MedicinesController {
 
         logger.info("OK\nsymptomsString: [{}]\ncompletion: [{}]", symptomsString, completion);
 
-        List<String> medicineOrProductNames = Arrays.stream(completion.split(","))
+        List<String> brandNames = Arrays.stream(completion.split(","))
                 .map(String::trim)
+                .map(String::toLowerCase)
                 .toList();
 
         Set<Medicine> medicines = new HashSet<>();
-        for (String name : medicineOrProductNames) {
-            Set<Medicine> newMedicines = medicineRepository.getMedicinesByGenericNameContainingIgnoreCase(name);
-            medicines.addAll(newMedicines);
-        }
+        addMedicinesFromBrandNames(brandNames, medicines);
+        addMedicinesFromDescriptionsContaining(brandNames, medicines);
 
         return ResponseEntity.ok(new MedicinesResponse(medicines.stream().toList()));
-
-//
-//        // Return dummy data
-//        Medicine m1 = new Medicine("genericName1", "description1", new ArrayList<>());
-//        Medicine m2 = new Medicine("genericName2", "description2", new ArrayList<>());
-//        Product p1 = new Product(m1, "brandName1", true, true,
-//                EDosageType.BOTTLE, new BigDecimal("1.2"));
-//        Product p2 = new Product(m1, "brandName2", false, true,
-//                EDosageType.CAPSULE, new BigDecimal("3.4"));
-//        Product p3 = new Product(m2, "brandName3", true, false,
-//                EDosageType.SUPPOSITORY, new BigDecimal("123.45"));
-//        m1.getProducts().add(p1);
-//        m1.getProducts().add(p2);
-//        m2.getProducts().add(p3);
-//
-//        return ResponseEntity.ok(new MedicinesResponse(List.of(m1, m2)));
     }
 
     private String getMedicinesForSymptomsCompletion(List<String> symptoms) {
         OpenAICompletionRequest request = new OpenAICompletionRequest(
-                1.0f,
+                0.0f,
                 openAIClient.getModel(),
                 List.of(
                         new OpenAICompletionRequest.Message("system", GET_MEDICINES_PROMPT),
@@ -110,5 +93,26 @@ public class MedicinesController {
                 ));
 
         return openAIClient.getCompletion(request);
+    }
+
+    private void addMedicinesFromBrandNames(List<String> brandNames, Set<Medicine> medicines) {
+        for (String brandName : brandNames) {
+            Set<Medicine> results = medicineRepository.getMedicinesByAnyProductBrandNameLike(brandName);
+            logger.info("brand name, medicines by products: [{}, {}]",
+                    brandName,
+                    results.stream().map(Medicine::getGenericName).toList());
+            medicines.addAll(results);
+        }
+    }
+
+    private void addMedicinesFromDescriptionsContaining(List<String> brandNames, Set<Medicine> medicines) {
+        for (String brandName : brandNames) {
+            if (brandName.length() <= 1) continue;
+            String brandNamePrefix = brandName.substring(0, brandName.length() - 1); // Skip trailing 's' if present
+            Set<Medicine> results = medicineRepository.getMedicinesByDescriptionContainingIgnoreCase(brandNamePrefix);
+            logger.info("brand name prefix, medicines by descriptions: [{}, {}]",
+                    brandNamePrefix, results.stream().map(Medicine::getGenericName).toList());
+            medicines.addAll(results);
+        }
     }
 }

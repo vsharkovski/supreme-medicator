@@ -73,7 +73,7 @@ public class DatabaseImportService {
 
     void importDataset(Path datasetPath) {
         SAXParserFactory factory = SAXParserFactory.newInstance();
-        DatasetMedicineParser datasetMedicineParser = new DatasetMedicineParser(medicineRepository, productRepository);
+        DatasetParser datasetParser = new DatasetParser(medicineRepository, productRepository);
 
         SAXParser saxParser;
         try {
@@ -83,7 +83,7 @@ public class DatabaseImportService {
         }
 
         try {
-            saxParser.parse(datasetPath.toString(), datasetMedicineParser);
+            saxParser.parse(datasetPath.toString(), datasetParser);
         } catch (SAXException | IOException e) {
             throw new RuntimeException(e);
         }

@@ -3,7 +3,6 @@ package com.suprememedicator.suprememedicator.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import org.hibernate.validator.constraints.Length;
 
 import java.util.List;
 
@@ -12,28 +11,26 @@ import java.util.List;
 public class Medicine {
     @Transient
     @JsonIgnore
-    public final int DESCRIPTION_MAX_LENGTH = 255;
+    public static final int GENERIC_NAME_MAX_LENGTH = 40;
+    @Transient
+    @JsonIgnore
+    public static final int DESCRIPTION_MAX_LENGTH = 500;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long medicine_id;
 
+    @Column(length = GENERIC_NAME_MAX_LENGTH)
     @NotNull
     private String genericName;
 
-    @Length(max = DESCRIPTION_MAX_LENGTH)
+    @Column(length = DESCRIPTION_MAX_LENGTH)
     private String description;
 
-    @OneToMany(mappedBy = "medicine")
+    @OneToMany(mappedBy = "medicine", fetch = FetchType.EAGER)
     private List<Product> products;
 
     public Medicine() {
-    }
-
-    public Medicine(String genericName, String description, List<Product> products) {
-        this.genericName = genericName;
-        this.description = description;
-        this.products = products;
     }
 
     public Long getId() {
@@ -57,6 +54,10 @@ public class Medicine {
     }
 
     public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setDescriptionTrimmed(String description) {
         if (description.length() > DESCRIPTION_MAX_LENGTH) {
             this.description = description.substring(0, DESCRIPTION_MAX_LENGTH);
         } else {
@@ -66,6 +67,14 @@ public class Medicine {
 
     public void setGenericName(String genericName) {
         this.genericName = genericName;
+    }
+
+    public void setGenericNameTrimmed(String genericName) {
+        if (genericName.length() > GENERIC_NAME_MAX_LENGTH) {
+            this.genericName = genericName.substring(0, GENERIC_NAME_MAX_LENGTH);
+        } else {
+            this.genericName = genericName;
+        }
     }
 
     public void setProducts(List<Product> products) {

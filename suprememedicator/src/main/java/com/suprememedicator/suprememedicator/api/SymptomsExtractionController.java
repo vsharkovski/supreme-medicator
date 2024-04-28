@@ -65,7 +65,7 @@ public class SymptomsExtractionController {
 
     private String getExtractSymptomsCompletion(String input) {
         OpenAICompletionRequest request = new OpenAICompletionRequest(
-                1.0f,
+                0.0f,
                 openAIClient.getModel(),
                 List.of(
                         new OpenAICompletionRequest.Message("system", EXTRACT_SYMPTOMS_PROMPT),

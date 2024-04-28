@@ -1,13 +1,6 @@
 package com.suprememedicator.suprememedicator.domain;
 
 /*
- * Types to ignore (maybe):
- * each
- * g
- * ml
- */
-
-/*
 Credits: https://www.baeldung.com/java-enum-values
  */
 

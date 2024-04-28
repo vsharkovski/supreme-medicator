@@ -9,6 +9,13 @@ import java.math.BigDecimal;
 @Entity
 @Table(name = "products")
 public class Product {
+    @Transient
+    @JsonIgnore
+    public static final int BRAND_NAME_MAX_LENGTH = 40;
+    @Transient
+    @JsonIgnore
+    public static final int DOSAGE_TYPE_MAX_LENGTH = 12;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -18,6 +25,7 @@ public class Product {
     @JoinColumn(name = "medicine_id", nullable = false)
     private Medicine medicine;
 
+    @Column(length = BRAND_NAME_MAX_LENGTH)
     @NotNull
     private String brandName;
 
@@ -27,6 +35,7 @@ public class Product {
     @NotNull
     private boolean isGeneric;
 
+    @Column(length = DOSAGE_TYPE_MAX_LENGTH)
     @Enumerated(EnumType.STRING)
     private EDosageType dosageType;
 
@@ -34,16 +43,6 @@ public class Product {
     private BigDecimal price;
 
     public Product() {
-    }
-
-    public Product(Medicine medicine, String brandName, boolean isOverTheCounter, boolean isGeneric,
-                   EDosageType dosageType, BigDecimal price) {
-        this.medicine = medicine;
-        this.brandName = brandName;
-        this.isOverTheCounter = isOverTheCounter;
-        this.isGeneric = isGeneric;
-        this.dosageType = dosageType;
-        this.price = price;
     }
 
     public Long getId() {
@@ -80,6 +79,14 @@ public class Product {
 
     public void setBrandName(String brandName) {
         this.brandName = brandName;
+    }
+
+    public void setBrandNameTrimmed(String brandName) {
+        if (brandName.length() > BRAND_NAME_MAX_LENGTH) {
+            this.brandName = brandName.substring(0, BRAND_NAME_MAX_LENGTH);
+        } else {
+            this.brandName = brandName;
+        }
     }
 
     public void setDosageType(EDosageType dosageType) {
