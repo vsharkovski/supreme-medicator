@@ -28,20 +28,39 @@ const predefSymptoms =  [
     "My heart is racing"
 ]
 
+const noResultsMessage = 'Oops! No results found in our databse. ' + 
+                  'We recommend visiting a doctor for personalized ' +
+                  'medical attention.';
+
 const base = 'http://localhost:8080/api/';
 
+class PromptError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = this.constructor.name;
+    }
+}
 async function apiCall(endpoint, params) {
     const paramsString = new URLSearchParams(params);
     return fetch(base + endpoint + '?' + paramsString, {
         method: 'GET',
         headers: {'Content-Type': 'application/json'}
     }).then((response) => {
-        if (!response.ok) {
-            throw new Error(`Bad response: ${response.status} ${response.statusText}`);
+        console.log(response);
+        if (response.status === 400) {
+            throw new PromptError();
+        }
+        else if (!response.ok){
+            throw new Error();
         }
         return response.json();
-    }).catch((error) => {
-        buildErrorPage(error)
+    }).catch((error) =>{
+        if (error instanceof PromptError){
+            buildErrorPage(`We did not like your input "${params.input}". Is it really describing some symptoms you have?`)
+        }
+        else{
+            buildErrorPage('An error occurred while fetching data. You are requesting too much!')
+        }
     })
 }
 
@@ -79,9 +98,7 @@ function buildLandingPage(){
     userInputSubmitButton.addEventListener('click', () => {
         apiCall('extract_symptoms/from_input', {input: userInput.value}).then((response) => {
             buildResultsPage(response['symptoms']);
-        }).catch((error) => {
-            console.log(error);
-        })
+        }).catch(console.log)
     })
 }
 
@@ -117,52 +134,18 @@ function buildResultsPage(symptoms){
 
     apiCall('medicines/for_symptoms', {symptoms: symptoms.join(',')}).then((response) => {
         const medicinesList = document.querySelector('#medicines-list');
-        response['medicines'].forEach((medicine) => { 
-            medicinesList.appendChild(buildMedicine(medicine));
-        })
-
-        submitButton.addEventListener('click', () => {
-            const name_filter = document.querySelector('#name-filter').value
-            const low_price = document.querySelector('#price-min-filter').value
-            const high_price = document.querySelector('#price-max-filter').value
-            const medicinesWithResult = new Set([]);
-
-            document.querySelectorAll('.product-card').forEach((product) => {
-                    let productName, productType, productDosage, productPrice;
-                    [productName, productType, productDosage, productPrice] = product.children;  
-                    productName = productName.textContent.toLowerCase();
-                    productPrice = productPrice.textContent.split(' ')[0];
-                    if ((name_filter === '' || productName.includes(name_filter.toLowerCase())) && 
-                        (low_price === '' || parseFloat(productPrice) >= parseFloat(low_price)) &&
-                        (high_price === '' || parseFloat(productPrice) <= parseFloat(high_price))) {
-                        console.log("moryarty", parseFloat(productPrice), parseFloat(low_price), parseFloat(high_price));
-                        product.style.display = 'inline-block';
-                        product.parentElement.parentElement.style.display = 'block';
-                        medicinesWithResult.add(product.parentElement.parentElement);
-                    } else {
-                        product.style.display = 'none';
-                    }
-                })
-                document.querySelectorAll('.medicine').forEach((medicine) => {
-                    const medicineName = medicine.children[0].textContent.toLowerCase();
-                    if (!medicinesWithResult.has(medicine)) {
-                        medicine.style.display = 'none';
-                    }
-                    if (name_filter !== '' && medicineName.includes(name_filter.toLowerCase())) {
-                        medicine.style.display = 'block';
-                        medicine.querySelectorAll('.product-card').forEach((product) => {
-                            product.style.display = 'inline-block';
-                        })
-                    }
-                })
+        if (!response['medicines'] || response['medicines'].length === 0){
+            const preamble = document.querySelector('#preamble');
+            preamble.textContent = noResultsMessage;
+        }
+        else{
+            response['medicines'].forEach((medicine) => { 
+                medicinesList.appendChild(buildMedicine(medicine));
             })
+            submitButton.addEventListener('click', filter);
+        }
 
-
-
-
-        }).catch((error) => {
-        console.log(error)
-    })
+    }).catch(console.log)
 
     const backButton = document.querySelector('#back-button');
 
@@ -176,8 +159,9 @@ function buildMedicine(info) {
     medicine.classList.add('medicine');
     medicine.innerHTML = `
         <h2>${info.genericName}</h2>
-        <p>${info.description}</p>
+        <span>${info.description}</span>
     `;
+    medicine.appendChild(buildDrugBankLink(info.genericName));
 
     const productsList = document.createElement('div');
     productsList.classList.add('products-list');
@@ -195,18 +179,43 @@ function buildMedicine(info) {
 function buildProductCard(info){
     const productCard = document.createElement('div');
     productCard.classList.add('product-card');
-    let otcInfo = '';
-    if (info['overTheCounter'] && info['generic']) {
-        otcInfo = 'Over the counter and generic';
+    let otcInfo = info['overTheCounter'] ? 'Over the counter' : 'Prescription only';
+    if (!info.dosageType){
+        info.dosageType = 'OTHER';
     }
-    otcInfo = info['overTheCounter'] ? 'Over the counter' : 'Prescription only';
     productCard.innerHTML = `
         <h3>${info.brandName}</h3>
         <p>${otcInfo}</p>
         <p>${info.dosageType}</p>
-        <p>${info.price} USD</p>
+        <p style="display: none;">${info.price} USD</p>
     `;
+
+    productCard.appendChild(buildAmazonLink(info.brandName));
+
     return productCard;
+}
+
+
+function buildAmazonLink(brandName){
+    amazonLink = document.createElement('a');
+    amazonLink.href = `https://www.amazon.com/s?k=${brandName}`;
+    amazonLink.target = '_blank';
+    amazonIcon = document.createElement('img');
+    amazonIcon.src = 'resources/amazon-sm.webp';
+    amazonIcon.classList.add('amazon-icon');
+    amazonLink.appendChild(amazonIcon);
+    return amazonLink;
+}
+
+function buildDrugBankLink(genericName){
+    drugBankLink = document.createElement('a');
+    drugBankLink.href = `https://go.drugbank.com/unearth/q?searcher=drugs&query=${genericName}`;
+    drugBankLink.target = '_blank';
+    drugBankSpan = document.createElement('span');
+    drugBankSpan.textContent = '... Learn more';
+    drugBankLink.appendChild(drugBankSpan);
+    drugBankLink.classList.add('drugbank-link');
+    return drugBankLink;
 }
 
 
@@ -226,5 +235,63 @@ function textTyping(element, text, delay) {
     });
 }
 
-// buildResultsPage(['headache', 'fever']);
+function filter(){
+    const name_filter = document.querySelector('#name-filter').value
+    const low_price = document.querySelector('#price-min-filter').value
+    const high_price = document.querySelector('#price-max-filter').value
+    const overTheCounter = document.querySelector('#otc-filter').checked
+    const prescription = document.querySelector('#prescription-filter').checked
+
+    let productsShow = Array.from(document.querySelectorAll('.product-card'))
+    let medicinesShow = Array.from(document.querySelectorAll('.medicine'))
+
+    console.log(productsShow)
+
+    productsShow.forEach((product) => {
+        product.style.display = 'none';
+    })
+
+    medicinesShow.forEach((medicine) => {
+        medicine.style.display = 'none';
+    })
+
+    productsShow = productsShow.filter((product) => {
+        let productPrice = product.children[3].textContent.split(' ')[0];
+        return (low_price === '' || parseFloat(productPrice) >= parseFloat(low_price)) &&
+                    (high_price === '' || parseFloat(productPrice) <= parseFloat(high_price))
+    })
+
+    productsShow = productsShow.filter((product) => {
+        let otcInfo = product.children[1].textContent;
+        return ((overTheCounter && otcInfo.includes('Over the counter')) || 
+            prescription && otcInfo.includes('Prescription only') || 
+        (!overTheCounter && !prescription))
+    })
+
+    medicinesShow = medicinesShow.filter((medicine) => {
+        let medicineName = medicine.children[0].textContent.toLowerCase();
+        return (name_filter !== '' && medicineName.includes(name_filter.toLowerCase()))
+    })
+
+    medicinesShow.forEach((medicine) => {
+        medicine.style.display = 'block';
+        medicine.querySelectorAll('.product-card').forEach((product) => {
+            if (productsShow.includes(product)){
+                product.style.display = 'inline-block';
+            }
+        })
+    })
+
+    productsShow = productsShow.filter((product) => {
+        let productName = product.children[0].textContent.toLowerCase();
+        return (name_filter === '' || productName.includes(name_filter.toLowerCase()))     
+    })
+
+
+    productsShow.forEach((product) => {
+        product.style.display = 'inline-block';
+        product.parentElement.parentElement.style.display = 'block';
+    })
+}
+
 buildLandingPage();

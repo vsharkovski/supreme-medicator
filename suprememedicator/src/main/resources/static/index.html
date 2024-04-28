@@ -8,16 +8,15 @@
 <link rel="stylesheet" href="styles.css">
 
 <body>
-
+  <a href="/"><img src="resources/logo-sm.png" class="logo" alt=""></a></a>
   <div id="error-page" class="page">
     <h1>Oops! Something went wrong.</h1>
-    <p>Sorry, we couldn't find the page you were looking for.</p>
     <p id="error-message"></p>
     <a id="error-button">Go back to the home page</a>
   </div>
 
   <div id="landing-page" class="page">
-    <img src="resources/logo-sm.png" class="logo" alt="">
+    <a href="/"><img src="resources/logo-sm.png" class="logo" alt=""></a>
     <h1> How are you feeling today?</h1>
     <div class="search-bar">
       <input class="usr-inp" type="text" name="user-input" id="user-input" placeholder="Enter your symptoms here. Be as detailed as possible"/>
@@ -32,13 +31,13 @@
 
 
   <div id="results-page" class="page">
-    <img src="resources/logo-sm.png" class="logo" alt="">
+    <a href="/"><img src="resources/logo-sm.png" class="logo" alt=""></a></a>
     <h1 id="user-symptoms">Symptoms: Loading</h1>
     <p id="symptoms-explanation">Loading...</p>
     <div class="results-container">
       <div class="left-side">
         <h2>Recommended Medicines</h2>
-        <p>Based on your symptoms, we recommend the following medicines:</p>
+        <p id="preamble">Based on your symptoms, we recommend the following medicines:</p>
         <div id="medicines-list">
         </div>
       </div>
@@ -48,13 +47,21 @@
           <h5>Filter results</h5>
           <label for="name-filter">Name</label>
           <input class="form-input" type="text" name="name-filter" id="name-filter" placeholder="Filter by name..." />
-          <label>Price</label>
+          <label>Estimated Price</label>
           <div class="input-row">
             <input class="form-input" type="number" name="price-min-filter" id="price-min-filter" placeholder="0" min="0" max="10000" />
             <span>to</span>
             <input class="form-input" type="number" name="price-max-filter" id="price-max-filter" placeholder="10000" min="0" max="10000" />
           </div>
-          <button id='filter-submit'><img class="icon"  src="resources/filter.png" alt=""></button>
+          <label>
+            <input type="checkbox" name="medication" id="otc-filter" value="over_the_counter">
+            Over the counter
+          </label><br>
+          <label>
+            <input type="checkbox" name="medication" id="prescription-filter" value="prescription_only">
+            Prescription only
+          </label><br>
+          <button id='filter-submit'><img class="icon" src="resources/filter.png" alt=""></button>
         </div>
       </div>
     </div>

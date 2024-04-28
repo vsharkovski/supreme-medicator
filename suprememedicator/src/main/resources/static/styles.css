@@ -114,8 +114,12 @@ white-space: nowrap;
 }
 
 #medicines-list{
-  width: 80%;
   overflow-x: scroll;
+}
+
+.amazon-icon{
+  width: 30px;
+  height: 30px;
 }
 
 .product-card{
@@ -138,7 +142,7 @@ padding: 2%;
   margin: 0 auto;
 }
 
-#results-page{
+#results-page, #error-page {
   margin: 0;
   padding: 50px;
 }
@@ -155,8 +159,8 @@ padding: 2%;
 }
 
 .left-side {
-  flex: 90%;
-  width: 90%;
+  flex: 80%;
+  width: 80%;
 }
 
 /* Style for the right side div */
@@ -187,5 +191,16 @@ padding: 2%;
 
 .input-row > .form-input {
   padding: 1px;
+}
+
+.drugbank-link, #error-button{
+  font-family: Arial, sans-serif;
+  color: black;
+  text-decoration: underline;
+}
+
+.drugbank-link:hover, #error-button:hover{
+  cursor: pointer;
+  color: gray;
 }
 
