@@ -1,4 +1,3 @@
-
 // Test script to demonstrate how to use API
 const predefSymptoms =  [
     "I have a slight headache",
@@ -124,6 +123,7 @@ function buildResultsPage(symptoms){
     userSymptoms.textContent = "You are experiencing: " + symptoms.join(', ');
     
     const submitButton = document.querySelector('#filter-submit');
+    const sortSelect = document.querySelector('#sort-select');
 
     apiCall('explain_symptoms/from_symptoms', {symptoms: symptoms.join(',')}).then((response) => {
         console.log(response);
@@ -143,11 +143,15 @@ function buildResultsPage(symptoms){
                 medicinesList.appendChild(buildMedicine(medicine));
             })
             submitButton.addEventListener('click', filter);
+            console.log('sortSelect', sortSelect)
+            sortSelect.addEventListener('change', sort);
+            sort()
         }
 
     }).catch(console.log)
 
     const backButton = document.querySelector('#back-button');
+    console.log("backbutton", backButton);
 
     backButton.addEventListener('click', () => {
         buildLandingPage();
@@ -157,8 +161,13 @@ function buildResultsPage(symptoms){
 function buildMedicine(info) {
     const medicine = document.createElement('div');
     medicine.classList.add('medicine');
+
+    const medicinePrice = info.products[0].price;
+    const priceDescription = medicinePrice ? `Estimated Price: ${medicinePrice}`: 'Price unavailable';
+
     medicine.innerHTML = `
         <h2>${info.genericName}</h2>
+        <h3>${priceDescription}</h3>
         <span>${info.description}</span>
     `;
     medicine.appendChild(buildDrugBankLink(info.genericName));
@@ -241,6 +250,7 @@ function filter(){
     const high_price = document.querySelector('#price-max-filter').value
     const overTheCounter = document.querySelector('#otc-filter').checked
     const prescription = document.querySelector('#prescription-filter').checked
+    const type = document.querySelector('#dosage-type-filter').value
 
     let productsShow = Array.from(document.querySelectorAll('.product-card'))
     let medicinesShow = Array.from(document.querySelectorAll('.medicine'))
@@ -268,6 +278,11 @@ function filter(){
         (!overTheCounter && !prescription))
     })
 
+    productsShow = productsShow.filter((product) => {
+        let productType = product.children[2].textContent;
+        return (productType === type || type === '')
+    })
+
     medicinesShow = medicinesShow.filter((medicine) => {
         let medicineName = medicine.children[0].textContent.toLowerCase();
         return (name_filter !== '' && medicineName.includes(name_filter.toLowerCase()))
@@ -291,6 +306,37 @@ function filter(){
     productsShow.forEach((product) => {
         product.style.display = 'inline-block';
         product.parentElement.parentElement.style.display = 'block';
+    })
+}
+
+function sort(){
+    console.log("trigger!")
+    const sortType = document.querySelector('#sort-select').value;
+    const medicinesList = document.querySelector('#medicines-list');
+    let medicines = Array.from(document.querySelectorAll('.medicine'));
+
+    medicinesList.innerHTML = '';
+
+    console.log(sortType);
+
+    medicines = medicines.sort((a, b) => {
+        let priceA = parseFloat(a.children[1].textContent.split(' ')[2]);
+        let priceB = parseFloat(b.children[1].textContent.split(' ')[2]);
+        priceA = isNaN(priceA) ? 10000: priceA;
+        priceB = isNaN(priceB) ? 10000: priceB;
+        console.log("prices compared", priceA, priceB)
+        if (sortType === 'asc'){
+            return priceA - priceB;
+        }
+        else{
+            return priceB - priceA;
+        }
+    })
+
+    console.log(medicines);
+
+    medicines.forEach((medicine) => {
+        medicinesList.appendChild(medicine);
     })
 }
 

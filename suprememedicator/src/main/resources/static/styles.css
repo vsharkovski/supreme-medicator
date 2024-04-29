@@ -204,3 +204,6 @@ padding: 2%;
   color: gray;
 }
 
+#filter-form > *{
+  margin: 3px;
+}

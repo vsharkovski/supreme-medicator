@@ -53,6 +53,17 @@
             <span>to</span>
             <input class="form-input" type="number" name="price-max-filter" id="price-max-filter" placeholder="10000" min="0" max="10000" />
           </div>
+          <label for="dosage-type-filter">Dosage Type</label>
+          <select id="dosage-type-filter" name="dosage-type-filter">
+              <option value="">Any</option>
+              <option value="BOTTLE">Bottle</option>
+              <option value="CAPLET">Caplet</option>
+              <option value="CAPSULE">Capsule</option>
+              <option value="SUPPOSITORY">Suppository</option>
+              <option value="TABLET">Tablet</option>
+              <option value="POWDER">Powder</option>
+              <option value="OTHER">Solution</option>
+          </select><br>
           <label>
             <input type="checkbox" name="medication" id="otc-filter" value="over_the_counter">
             Over the counter
@@ -62,6 +73,14 @@
             Prescription only
           </label><br>
           <button id='filter-submit'><img class="icon" src="resources/filter.png" alt=""></button>
+        </div>
+          <h5>Sort results</h5>
+        <div id="sort-form">
+          <label for="sort-select">Sort by</label>
+          <select id="sort-select" name="sort-select">
+              <option value="asc">Price: Low to High</option>
+              <option value="desc">Price: High to Low</option>
+          </select>
         </div>
       </div>
     </div>
