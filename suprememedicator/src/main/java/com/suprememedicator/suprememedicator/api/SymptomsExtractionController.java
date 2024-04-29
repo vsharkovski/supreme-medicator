@@ -22,11 +22,12 @@ public class SymptomsExtractionController {
 
     private static final String EXTRACT_SYMPTOMS_PROMPT = """
             You will now be given a message. Depending on the content of the message, you must do one of two things.
-            1. If the message is from someone feeling unwell, your answer should start with "OK", a semicolon, and \
-            then a comma-separated list of symptoms derived from that message. \
-            For example, "OK; symptom_1, symptom_2, symptom_3". \
-            Use a formal, neutral tone for the symptoms.
-            2. If the message is anything else or has no symptoms, your answer should be just "NOT_OK".
+            1. If the message is from someone feeling unwell, for example "I can't XXX" or "My XXX hurts", \
+            your answer should start with \
+            "OK", a semicolon, and then a comma-separated list of symptoms the person is feeling. \
+            For example, "OK; symptom1, symptom2, symptom3". \
+            The symptoms should be concise and use general medical terminology.
+            2. If the message has no symptoms, your answer should be just "NOT_OK".
             Do not deviate from these instructions.
             """;
 
@@ -81,5 +82,4 @@ public class SymptomsExtractionController {
                 .map(String::trim)
                 .toList();
     }
-
 }

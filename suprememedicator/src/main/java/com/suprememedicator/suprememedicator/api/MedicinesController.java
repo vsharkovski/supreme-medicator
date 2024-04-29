@@ -53,6 +53,7 @@ public class MedicinesController {
             @NotBlank @RequestParam(name = "symptoms") String symptomsString) {
         List<String> symptoms = Arrays.stream(symptomsString.split(","))
                 .map(String::trim)
+                .map(String::toLowerCase)
                 .toList();
 
         if (symptoms.isEmpty()) {
@@ -78,7 +79,7 @@ public class MedicinesController {
 
         Set<Medicine> medicines = new HashSet<>();
         addMedicinesFromBrandNames(brandNames, medicines);
-        addMedicinesFromDescriptionsContaining(brandNames, medicines);
+        addMedicinesFromDescriptions(brandNames, medicines);
 
         return ResponseEntity.ok(new MedicinesResponse(medicines.stream().toList()));
     }
@@ -97,21 +98,16 @@ public class MedicinesController {
 
     private void addMedicinesFromBrandNames(List<String> brandNames, Set<Medicine> medicines) {
         for (String brandName : brandNames) {
-            Set<Medicine> results = medicineRepository.getMedicinesByAnyProductBrandNameLike(brandName);
-            logger.info("brand name, medicines by products: [{}, {}]",
-                    brandName,
-                    results.stream().map(Medicine::getGenericName).toList());
+            Set<Medicine> results = medicineRepository.getMedicinesByAnyProductBrandNameContaining(brandName);
             medicines.addAll(results);
         }
     }
 
-    private void addMedicinesFromDescriptionsContaining(List<String> brandNames, Set<Medicine> medicines) {
+    private void addMedicinesFromDescriptions(List<String> brandNames, Set<Medicine> medicines) {
         for (String brandName : brandNames) {
             if (brandName.length() <= 1) continue;
             String brandNamePrefix = brandName.substring(0, brandName.length() - 1); // Skip trailing 's' if present
             Set<Medicine> results = medicineRepository.getMedicinesByDescriptionContainingIgnoreCase(brandNamePrefix);
-            logger.info("brand name prefix, medicines by descriptions: [{}, {}]",
-                    brandNamePrefix, results.stream().map(Medicine::getGenericName).toList());
             medicines.addAll(results);
         }
     }

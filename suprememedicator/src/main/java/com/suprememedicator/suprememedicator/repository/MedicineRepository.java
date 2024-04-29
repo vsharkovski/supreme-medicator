@@ -19,7 +19,7 @@ public interface MedicineRepository extends JpaRepository<Medicine, Long> {
                 and p.brandName like concat('%', :brandName, '%')
         )
     """)
-    Set<Medicine> getMedicinesByAnyProductBrandNameLike(String brandName);
+    Set<Medicine> getMedicinesByAnyProductBrandNameContaining(String brandName);
 
     Set<Medicine> getMedicinesByDescriptionContainingIgnoreCase(String keyword);
 }
