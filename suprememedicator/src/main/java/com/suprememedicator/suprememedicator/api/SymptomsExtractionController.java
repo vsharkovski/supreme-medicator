@@ -23,7 +23,7 @@ public class SymptomsExtractionController {
     private static final String EXTRACT_SYMPTOMS_PROMPT = """
             You will now be given a message. Depending on the content of the message, you must do one of two things.
             1. If the message is from someone feeling unwell, for example "I can't XXX" or "My XXX hurts", \
-            your answer should start with \
+            or the message is a list of symptoms, for example, "headache", your answer should start with \
             "OK", a semicolon, and then a comma-separated list of symptoms the person is feeling. \
             For example, "OK; symptom1, symptom2, symptom3". \
             The symptoms should be concise and use general medical terminology.

@@ -27,7 +27,7 @@ const predefSymptoms =  [
     "My heart is racing"
 ]
 
-const noResultsMessage = 'Oops! No results found in our databse. ' + 
+const noResultsMessage = 'Oops! No results found in our databse. ' +
                   'We recommend visiting a doctor for personalized ' +
                   'medical attention.';
 
@@ -121,7 +121,7 @@ function buildResultsPage(symptoms){
     const symptomsExplanation = document.querySelector('#symptoms-explanation');
 
     userSymptoms.textContent = "You are experiencing: " + symptoms.join(', ');
-    
+
     const submitButton = document.querySelector('#filter-submit');
     const sortSelect = document.querySelector('#sort-select');
 
@@ -139,7 +139,7 @@ function buildResultsPage(symptoms){
             preamble.textContent = noResultsMessage;
         }
         else{
-            response['medicines'].forEach((medicine) => { 
+            response['medicines'].forEach((medicine) => {
                 medicinesList.appendChild(buildMedicine(medicine));
             })
             submitButton.addEventListener('click', filter);
@@ -163,7 +163,7 @@ function buildMedicine(info) {
     medicine.classList.add('medicine');
 
     const medicinePrice = info.products[0].price;
-    const priceDescription = medicinePrice ? `Estimated Price: ${medicinePrice}`: 'Price unavailable';
+    const priceDescription = medicinePrice ? `Estimated Price: ${medicinePrice} USD`: 'Price unavailable';
 
     medicine.innerHTML = `
         <h2>${info.genericName}</h2>
@@ -273,8 +273,8 @@ function filter(){
 
     productsShow = productsShow.filter((product) => {
         let otcInfo = product.children[1].textContent;
-        return ((overTheCounter && otcInfo.includes('Over the counter')) || 
-            prescription && otcInfo.includes('Prescription only') || 
+        return ((overTheCounter && otcInfo.includes('Over the counter')) ||
+            prescription && otcInfo.includes('Prescription only') ||
         (!overTheCounter && !prescription))
     })
 
@@ -299,7 +299,7 @@ function filter(){
 
     productsShow = productsShow.filter((product) => {
         let productName = product.children[0].textContent.toLowerCase();
-        return (name_filter === '' || productName.includes(name_filter.toLowerCase()))     
+        return (name_filter === '' || productName.includes(name_filter.toLowerCase()))
     })
 
 
